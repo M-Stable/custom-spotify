@@ -14,11 +14,13 @@ const Container = styled.div`
     rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
     rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   background: #222e58;
+
 `;
 
 const ImageContainer = styled.div`
   width: 100%;
   height: 70%;
+  background: ${(props) => props.theme.gray};
   background: ${(props) => `url(${props.image})`};
   //   border-radius: 20px 20px 0 0;
   background-position: center;
@@ -46,7 +48,9 @@ const Image = styled.img`
 const TrackInfoContainer = styled.div`
   min-width: 50%;
   max-width: 90%;
-  border: 5px solid white;
+  border: 5px solid;
+  border-image-slice: 1;
+  border-image-source: linear-gradient(90deg, rgba(255,103,0,1) 0%, rgba(216,49,91,1) 100%);
   box-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
   color: white;
   padding: 10px;
@@ -62,12 +66,13 @@ const TrackInfoContainer = styled.div`
 const InfoBackground = styled.div`
   width: 100%;
   height: 100%;
-  background: white;
-  opacity: 0.4;
+  background: ${(props) => props.theme.navy};
+  opacity: 0.8;
 
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
 `;
 
 const Title = styled.h1`
@@ -75,6 +80,7 @@ const Title = styled.h1`
   font-weight: 400;
   text-align: center;
   text-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 `;
 
 const Artist = styled.h4`
@@ -82,16 +88,18 @@ const Artist = styled.h4`
   font-weight: 400;
   text-align: center;
   text-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 `;
 
 const BottomContainer = styled.div`
   width: 100%;
   height: 30%;
   background: rgb(4, 17, 61);
+  background: rgb(4, 17, 61);
   background: linear-gradient(
     180deg,
     rgba(4, 17, 61, 1) 0%,
-    rgba(34, 46, 88, 1) 70%
+    rgba(37, 40, 61, 1) 70%
   );
   //   border-radius: 0 0 20px 20px;
 
@@ -108,12 +116,17 @@ const PlaybackContainer = styled.div`
   align-items: center;
 `;
 
+const IconWrapper = styled.div`
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 function SpotifyPlayer({ spotify }) {
   const [{ item, playing }, dispatch] = useStateValue();
 
   useEffect(() => {
     spotify.getMyCurrentPlaybackState().then((track) => {
-      console.log(track);
       dispatch({
         type: "SET_PLAYING",
         playing: track.is_playing,
@@ -178,25 +191,31 @@ function SpotifyPlayer({ spotify }) {
         <Image src={item?.album?.images[0]?.url} alt={item?.album?.name} />
         <TrackInfoContainer>
           <InfoBackground />
-          <Title>{item?.name}</Title>
+          <Title>{item ? item?.name : "Select a playlist on the left"}</Title>
           <Artist>{item?.artists?.map((a) => a.name).join(", ")}</Artist>
         </TrackInfoContainer>
       </ImageContainer>
       <BottomContainer>
         <PlaybackContainer>
-          <SkipPreviousIcon onClick={skipPrevious} style={{ fontSize: 80 }} />
-          {playing ? (
-            <PauseCircleOutlineIcon
-              onClick={handlePlayPause}
-              style={{ fontSize: 100 }}
-            />
-          ) : (
-            <PlayCircleOutlineIcon
-              onClick={handlePlayPause}
-              style={{ fontSize: 100, textShadow: "10px 10px" }}
-            />
-          )}
-          <SkipNextIcon onClick={skipNext} style={{ fontSize: 80 }} />
+          <IconWrapper>
+            <SkipPreviousIcon onClick={skipPrevious} style={{ fontSize: 80 }} />
+          </IconWrapper>
+          <IconWrapper>
+            {playing ? (
+              <PauseCircleOutlineIcon
+                onClick={handlePlayPause}
+                style={{ fontSize: 100 }}
+              />
+            ) : (
+              <PlayCircleOutlineIcon
+                onClick={handlePlayPause}
+                style={{ fontSize: 100 }}
+              />
+            )}
+          </IconWrapper>
+          <IconWrapper>
+            <SkipNextIcon onClick={skipNext} style={{ fontSize: 80 }} />
+          </IconWrapper>
         </PlaybackContainer>
       </BottomContainer>
     </Container>

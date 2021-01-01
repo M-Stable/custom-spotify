@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useStateValue } from "../StateProvider";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
@@ -34,13 +34,6 @@ const ImageContainer = styled.div`
   display: flex;
   margin: 0 0 20px 0;
   position: relative;
-
-  &:hover {
-    > * {
-      transition: all .2s ease;
-      opacity: 1;
-    }
-  }
 `;
 
 const TextContainer = styled.div`
@@ -63,43 +56,96 @@ const TextContainer = styled.div`
   }
 `;
 
-const PlaylistImage = styled.img`
+const PlaylistImage = styled.div`
   height: 180px;
   width: 180px;
+  position: relative;
   border: 5px solid ${(props) => props.theme.white};
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
     rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
     rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  background: ${(props) => `url(${props.image})`};
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    > * {
+      transition: all 0.2s ease;
+      opacity: 1;
+    }
+
+    div {
+      transition: all 0.2s ease;
+      opacity: 0.5;
+    }
+  }
 `;
 
 const PlayButton = styled(PlayCircleOutlineIcon)`
   color: ${(props) => props.theme.pink};
   font-size: 80px !important;
-  opacity: 0;
+  opacity: ${(props) => (props.isplaying ? "1" : "0")};
+  z-index: 2;
+`;
 
+const Dimmer = styled.div`
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-30%, -50%);
-  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: ${(props) => (props.isplaying ? "0.5" : "0")};
+  z-index: 1;
 `;
 
 function Playlists({ spotify }) {
-  const [{ playlists }, dispatch] = useStateValue();
+  const [{ playlists, item }, dispatch] = useStateValue();
+  const [uri, setUri] = useState(null);
+
+  useEffect(() => {
+    spotify.getMyCurrentPlaybackState().then((r) => {
+      setUri(r?.context?.uri);
+    });
+  }, [spotify, item]);
+
+  const handlePlay = (uri) => {
+    spotify.play({ context_uri: uri }).then(() => {
+      spotify.getMyCurrentPlayingTrack().then((r) => {
+        dispatch({
+          type: "SET_ITEM",
+          item: r.item,
+        });
+        dispatch({
+          type: "SET_PLAYING",
+          playing: true,
+        });
+      });
+    });
+  };
 
   const renderPlaylists = playlists.map((playlist) => {
     return (
-      <ImageContainer>
+      <ImageContainer key={playlist?.id}>
         <TextContainer>
           <p>{playlist?.name}</p>
         </TextContainer>
 
-        <PlaylistImage src={playlist?.images[0]?.url} alt="test" />
-        <PlayButton />
+        <PlaylistImage
+          onClick={() => handlePlay(playlist?.uri)}
+          image={playlist?.images[0]?.url}
+        >
+          <Dimmer isplaying={playlist.uri === uri ? 1 : 0} />
+          <PlayButton isplaying={playlist.uri === uri ? 1 : 0} />
+        </PlaylistImage>
       </ImageContainer>
     );
   });
-  console.log(playlists);
 
   return <PlaylistContainer>{renderPlaylists}</PlaylistContainer>;
 }

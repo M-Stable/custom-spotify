@@ -26,6 +26,8 @@ function App() {
     const _token = hash.access_token;
 
     if (_token) {
+      spotify.setAccessToken(_token);
+
       dispatch({
         type: "SET_TOKEN",
         token: _token,
@@ -35,8 +37,6 @@ function App() {
         type: "SET_SPOTIFY",
         spotify,
       });
-
-      spotify.setAccessToken(_token);
 
       spotify.getMe().then((user) => {
         dispatch({
@@ -52,12 +52,19 @@ function App() {
         });
       });
 
-      // spotify.getMyCurrentPlayingTrack().then((track) => {
-      //   dispatch({
-      //     type: "SET_CURRENT_TRACK",
-      //     track,
-      //   })
-      // })
+      spotify.getMyTopArtists().then((artists) => {
+        dispatch({
+          type: "SET_ARTISTS",
+          artists: artists.items,
+        });
+      });
+
+      spotify.getMyTopTracks().then((tracks) => {
+        dispatch({
+          type: "SET_TRACKS",
+          tracks: tracks.items,
+        });
+      });
     }
   }, [dispatch]);
 
