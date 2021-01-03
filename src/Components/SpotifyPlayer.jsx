@@ -6,13 +6,15 @@ import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import PauseCircleOutlineIcon from "@material-ui/icons/PauseCircleOutline";
 import ShuffleIcon from "@material-ui/icons/Shuffle";
-import {fadeIn, slideUp} from "./TopArtists"
+import RepeatIcon from "@material-ui/icons/Repeat";
+import RepeatOneIcon from "@material-ui/icons/RepeatOne";
+import { fadeIn, slideUp } from "./TopArtists";
 
 const Container = styled.div`
   width: 400px;
-  // min-width: 340px;
-  // height: 650px;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  min-height: 335px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   background: ${(props) => props.theme.navy};
   margin: 20px;
 
@@ -106,7 +108,6 @@ const BottomContainer = styled.div`
     rgba(4, 17, 61, 1) 0%,
     rgba(37, 40, 61, 1) 70%
   );
-  //   border-radius: 0 0 20px 20px;
   position: relative;
 
   display: flex;
@@ -129,18 +130,28 @@ const IconWrapper = styled.div`
 `;
 
 const ShuffleButton = styled(ShuffleIcon)`
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translate(-50%, 0);
   color: ${(props) =>
     props.isshuffle ? props.theme.orange : props.theme.white};
+  z-index: 5;
+`;
+
+const RepeatButton = styled(RepeatIcon)`
+  color: ${(props) =>
+    props.isrepeat === "off"
+      ? props.theme.white
+      : props.isrepeat === "context" && props.theme.orange};
+  z-index: 5;
+`;
+
+const RepeatOneButton = styled(RepeatOneIcon)`
+  color: ${(props) => props.theme.orange};
   z-index: 5;
 `;
 
 function SpotifyPlayer({ spotify }) {
   const [{ item, playing }, dispatch] = useStateValue();
   const [isShuffle, setShuffle] = useState(false);
+  const [isRepeat, setRepeat] = useState("off");
 
   useEffect(() => {
     spotify.getMyCurrentPlaybackState().then((track) => {
@@ -155,6 +166,7 @@ function SpotifyPlayer({ spotify }) {
       });
 
       setShuffle(track.shuffle_state);
+      setRepeat(track.repeat_state);
     });
   }, [spotify, dispatch]);
 
@@ -226,6 +238,19 @@ function SpotifyPlayer({ spotify }) {
     setShuffle(!isShuffle);
   };
 
+  const handleRepeat = () => {
+    if (isRepeat === "off") {
+      spotify.setRepeat("context");
+      setRepeat("context");
+    } else if (isRepeat === "context") {
+      spotify.setRepeat("track");
+      setRepeat("track");
+    } else {
+      spotify.setRepeat("off");
+      setRepeat("off");
+    }
+  };
+
   return (
     <Container>
       <ImageContainer image={item?.album?.images[0]?.url}>
@@ -238,6 +263,12 @@ function SpotifyPlayer({ spotify }) {
       </ImageContainer>
       <BottomContainer>
         <PlaybackContainer>
+          <IconWrapper>
+            <ShuffleButton
+              isshuffle={isShuffle ? 1 : 0}
+              onClick={handleShuffle}
+            />
+          </IconWrapper>
           <IconWrapper>
             <SkipPreviousIcon onClick={skipPrevious} style={{ fontSize: 80 }} />
           </IconWrapper>
@@ -257,13 +288,14 @@ function SpotifyPlayer({ spotify }) {
           <IconWrapper>
             <SkipNextIcon onClick={skipNext} style={{ fontSize: 80 }} />
           </IconWrapper>
+          <IconWrapper>
+            {isRepeat === "track" ? (
+              <RepeatOneButton isrepeat={isRepeat} onClick={handleRepeat} />
+            ) : (
+              <RepeatButton isrepeat={isRepeat} onClick={handleRepeat} />
+            )}
+          </IconWrapper>
         </PlaybackContainer>
-        <IconWrapper>
-          <ShuffleButton
-            isshuffle={isShuffle ? 1 : 0}
-            onClick={handleShuffle}
-          />
-        </IconWrapper>
       </BottomContainer>
     </Container>
   );

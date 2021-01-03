@@ -26,8 +26,7 @@ export const fadeIn = keyframes`
 
 const Container = styled.div`
   width: 400px;
-  // min-width: 340px;
-  // height: 650px;
+  min-height: 335px;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
   position: relative;

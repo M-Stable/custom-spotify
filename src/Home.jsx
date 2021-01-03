@@ -61,6 +61,7 @@ const CardContainer = styled.div`
   justify-content: space-between;
   overflow: auto;
   width: ${(props) => props.isMobile && "380px"};
+  z-index: 5;
 
   /* width */
   ::-webkit-scrollbar {
