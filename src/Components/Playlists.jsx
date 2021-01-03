@@ -7,7 +7,7 @@ const PlaylistContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  // height: 650px;
+  height: 650px;
   width: 100%;
   margin-left: -20px;
 
@@ -34,11 +34,12 @@ const ImageContainer = styled.div`
   display: flex;
   margin: 0 0 20px 0;
   position: relative;
+  width: 70%;
 `;
 
 const TextContainer = styled.div`
   display: flex;
-  height: 190px;
+  height: 100%;
   margin-right: 5px;
 
   white-space: nowrap;
@@ -56,14 +57,11 @@ const TextContainer = styled.div`
   }
 `;
 
-const PlaylistImage = styled.div`
-  height: 180px;
-  width: 180px;
+export const PlaylistImage = styled.div`
+  width: 100%;
+  padding-top: 90%;
   position: relative;
   border: 5px solid ${(props) => props.theme.white};
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
-    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
-    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
   background: ${(props) => `url(${props.image})`};
   background-position: center;
   background-repeat: no-repeat;
@@ -72,6 +70,10 @@ const PlaylistImage = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 
   &:hover {
     > * {
@@ -87,13 +89,18 @@ const PlaylistImage = styled.div`
 `;
 
 const PlayButton = styled(PlayCircleOutlineIcon)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   color: ${(props) => props.theme.pink};
   font-size: 80px !important;
   opacity: ${(props) => (props.isplaying ? "1" : "0")};
   z-index: 2;
 `;
 
-const Dimmer = styled.div`
+export const Dimmer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
@@ -101,10 +108,10 @@ const Dimmer = styled.div`
   height: 100%;
   background: black;
   opacity: ${(props) => (props.isplaying ? "0.5" : "0")};
-  z-index: 1;
+  z-index: 2;
 `;
 
-function Playlists({ spotify }) {
+function Playlists({ spotify, setDeviceExist }) {
   const [{ playlists, item }, dispatch] = useStateValue();
   const [uri, setUri] = useState(null);
 
@@ -115,15 +122,19 @@ function Playlists({ spotify }) {
   }, [spotify, item]);
 
   const handlePlay = (uri) => {
-    spotify.play({ context_uri: uri }).then(() => {
-      spotify.getMyCurrentPlayingTrack().then((r) => {
-        dispatch({
-          type: "SET_ITEM",
-          item: r.item,
-        });
-        dispatch({
-          type: "SET_PLAYING",
-          playing: true,
+    spotify.getMyDevices().then((devices) => {
+      devices.devices.length === 0 ? setDeviceExist(false) : setDeviceExist(true);
+
+      spotify.play({ device_id: devices.devices[0]?.id, context_uri: uri }).then(() => {
+        spotify.getMyCurrentPlayingTrack().then((r) => {
+          dispatch({
+            type: "SET_ITEM",
+            item: r.item,
+          });
+          dispatch({
+            type: "SET_PLAYING",
+            playing: true,
+          });
         });
       });
     });

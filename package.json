@@ -10,6 +10,8 @@
     "@testing-library/user-event": "^12.6.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-particles-js": "^3.4.1",
+    "react-responsive": "^8.2.0",
     "react-scripts": "4.0.1",
     "spotify-web-api-js": "^1.5.1",
     "styled-components": "^5.2.1",

@@ -1,20 +1,24 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useStateValue } from "../StateProvider";
 import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import PauseCircleOutlineIcon from "@material-ui/icons/PauseCircleOutline";
+import ShuffleIcon from "@material-ui/icons/Shuffle";
+import {fadeIn, slideUp} from "./TopArtists"
 
 const Container = styled.div`
   width: 400px;
-  height: 650px;
-  //   border-radius: 20px;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
-    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
-    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  background: #222e58;
+  // min-width: 340px;
+  // height: 650px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+  background: ${(props) => props.theme.navy};
+  margin: 20px;
 
+  animation: ${slideUp} 1s, ${fadeIn} 1s;
+
+  z-index: 5;
 `;
 
 const ImageContainer = styled.div`
@@ -22,7 +26,6 @@ const ImageContainer = styled.div`
   height: 70%;
   background: ${(props) => props.theme.gray};
   background: ${(props) => `url(${props.image})`};
-  //   border-radius: 20px 20px 0 0;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -36,7 +39,6 @@ const ImageContainer = styled.div`
 const Image = styled.img`
   width: 100%;
   height: 100%;
-  //   border-radius: 20px 20px 0 0;
   filter: blur(1px);
   -webkit-filter: blur(1px);
 
@@ -50,9 +52,13 @@ const TrackInfoContainer = styled.div`
   max-width: 90%;
   border: 5px solid;
   border-image-slice: 1;
-  border-image-source: linear-gradient(90deg, rgba(255,103,0,1) 0%, rgba(216,49,91,1) 100%);
+  border-image-source: linear-gradient(
+    90deg,
+    rgba(255, 103, 0, 1) 0%,
+    rgba(216, 49, 91, 1) 100%
+  );
   box-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
-  color: white;
+  color: ${(props) => props.theme.white};
   padding: 10px;
 
   display: flex;
@@ -94,14 +100,14 @@ const Artist = styled.h4`
 const BottomContainer = styled.div`
   width: 100%;
   height: 30%;
-  background: rgb(4, 17, 61);
-  background: rgb(4, 17, 61);
+  background: ${(props) => props.theme.navy};
   background: linear-gradient(
     180deg,
     rgba(4, 17, 61, 1) 0%,
     rgba(37, 40, 61, 1) 70%
   );
   //   border-radius: 0 0 20px 20px;
+  position: relative;
 
   display: flex;
   justify-content: center;
@@ -122,8 +128,19 @@ const IconWrapper = styled.div`
   }
 `;
 
+const ShuffleButton = styled(ShuffleIcon)`
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  color: ${(props) =>
+    props.isshuffle ? props.theme.orange : props.theme.white};
+  z-index: 5;
+`;
+
 function SpotifyPlayer({ spotify }) {
   const [{ item, playing }, dispatch] = useStateValue();
+  const [isShuffle, setShuffle] = useState(false);
 
   useEffect(() => {
     spotify.getMyCurrentPlaybackState().then((track) => {
@@ -136,7 +153,26 @@ function SpotifyPlayer({ spotify }) {
         type: "SET_ITEM",
         item: track.item,
       });
+
+      setShuffle(track.shuffle_state);
     });
+  }, [spotify, dispatch]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      spotify.getMyCurrentPlaybackState().then((track) => {
+        dispatch({
+          type: "SET_PLAYING",
+          playing: track.is_playing,
+        });
+
+        dispatch({
+          type: "SET_ITEM",
+          item: track.item,
+        });
+      });
+    }, 5000);
+    return () => clearInterval(interval);
   }, [spotify, dispatch]);
 
   const handlePlayPause = () => {
@@ -185,13 +221,18 @@ function SpotifyPlayer({ spotify }) {
     });
   };
 
+  const handleShuffle = () => {
+    spotify.setShuffle(!isShuffle);
+    setShuffle(!isShuffle);
+  };
+
   return (
     <Container>
       <ImageContainer image={item?.album?.images[0]?.url}>
         <Image src={item?.album?.images[0]?.url} alt={item?.album?.name} />
         <TrackInfoContainer>
           <InfoBackground />
-          <Title>{item ? item?.name : "Select a playlist on the left"}</Title>
+          <Title>{item ? item?.name : "Select a playlist/artist/track"}</Title>
           <Artist>{item?.artists?.map((a) => a.name).join(", ")}</Artist>
         </TrackInfoContainer>
       </ImageContainer>
@@ -217,6 +258,12 @@ function SpotifyPlayer({ spotify }) {
             <SkipNextIcon onClick={skipNext} style={{ fontSize: 80 }} />
           </IconWrapper>
         </PlaybackContainer>
+        <IconWrapper>
+          <ShuffleButton
+            isshuffle={isShuffle ? 1 : 0}
+            onClick={handleShuffle}
+          />
+        </IconWrapper>
       </BottomContainer>
     </Container>
   );
