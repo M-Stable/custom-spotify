@@ -1,5 +1,7 @@
 # Custom Spotify App
 
+https://www.customspotify.cf/
+
 A fresh, modern Spotify tool that uses the Spotify web api. Works on both desktop and mobile.
 
 ***Note: this is **NOT** a web player. It requires a Spotify instance open/running on any device.*
