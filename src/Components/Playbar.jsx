@@ -54,7 +54,7 @@ const Name = styled.h1`
   text-shadow: 5px 5px 3px rgba(0, 0, 0, 0.2);
 
   position: absolute;
-  left: 390px;
+  left: calc(20vw + 20px);
   top: 50%;
   transform: translateY(-50%);
 `;

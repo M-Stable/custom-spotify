@@ -5,7 +5,7 @@ import PlayCircleOutlineIcon from "@material-ui/icons/PlayCircleOutline";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 
 const ListContainer = styled.div`
-  height: 28%;
+  max-height: 28%;
   overflow-y: scroll;
   width: 250px;
   margin-bottom: 20px;
