@@ -123,20 +123,27 @@ function Playlists({ spotify, setDeviceExist }) {
 
   const handlePlay = (uri) => {
     spotify.getMyDevices().then((devices) => {
-      devices.devices.length === 0 ? setDeviceExist(false) : setDeviceExist(true);
+      devices.devices.length === 0
+        ? setDeviceExist(false)
+        : setDeviceExist(true);
+      setTimeout(() => {
+        setDeviceExist(false);
+      }, 3000);
 
-      spotify.play({ device_id: devices.devices[0]?.id, context_uri: uri }).then(() => {
-        spotify.getMyCurrentPlayingTrack().then((r) => {
-          dispatch({
-            type: "SET_ITEM",
-            item: r.item,
-          });
-          dispatch({
-            type: "SET_PLAYING",
-            playing: true,
+      spotify
+        .play({ device_id: devices.devices[0]?.id, context_uri: uri })
+        .then(() => {
+          spotify.getMyCurrentPlayingTrack().then((r) => {
+            dispatch({
+              type: "SET_ITEM",
+              item: r.item,
+            });
+            dispatch({
+              type: "SET_PLAYING",
+              playing: true,
+            });
           });
         });
-      });
     });
   };
 
