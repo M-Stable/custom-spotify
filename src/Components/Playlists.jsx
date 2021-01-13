@@ -127,7 +127,7 @@ function Playlists({ spotify, setDeviceExist }) {
         ? setDeviceExist(false)
         : setDeviceExist(true);
       setTimeout(() => {
-        setDeviceExist(false);
+        setDeviceExist(true);
       }, 3000);
 
       spotify
