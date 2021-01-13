@@ -5,10 +5,10 @@ import Slider from "@material-ui/core/Slider";
 import { useMediaQuery } from "react-responsive";
 
 const NameContainer = styled.div`
-  width: ${props => props.isMobile ? "100%" : "calc(100% + 380px)"};
+  width: ${props => props.isMobile ? "100%" : "calc(100% + 20vw)"};
   position: absolute;
   top: 130px;
-  left:  ${props => props.isMobile ? "0" : "-380px"};
+  left:  ${props => props.isMobile ? "0" : "-20vw"};
   z-index: 1;
   height: 80px;
 `;

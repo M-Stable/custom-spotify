@@ -7,7 +7,7 @@ const PlaylistContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 650px;
+  height: 70%;
   width: 100%;
   margin-left: -20px;
 
