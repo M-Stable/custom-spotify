@@ -27,7 +27,7 @@ export const fadeIn = keyframes`
 const Container = styled.div`
   width: 400px;
   min-height: 335px;
-    flex-basis: 33.33%;
+  flex-basis: 33.33%;
   flex: 1;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
@@ -149,7 +149,12 @@ function TopArtists({ showArtists, spotify, setDeviceExist }) {
 
   const handlePlay = (uri) => {
     spotify.getMyDevices().then((devices) => {
-      devices.devices.length === 0 ? setDeviceExist(false) : setDeviceExist(true);
+      devices.devices.length === 0
+        ? setDeviceExist(false)
+        : setDeviceExist(true);
+      setTimeout(() => {
+        setDeviceExist(true);
+      }, 3000);
       const options = {
         device_id: devices.devices[0]?.id,
       };
